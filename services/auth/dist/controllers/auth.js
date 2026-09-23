@@ -24,7 +24,7 @@ export const loginUser = TryCatch(async (req, res) => {
     const token = jwt.sign({ user }, process.env.JWT_SECRET, {
         expiresIn: "15d",
     });
-    res.status(200).json({ message: "User logged in successfully", token, user });
+    res.status(200).json({ message: "Logged in successfully", token, user });
 });
 const allowedRoles = ["customer", "rider", "seller"];
 export const addUserRole = TryCatch(async (req, res) => {

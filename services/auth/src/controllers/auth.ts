@@ -35,7 +35,7 @@ export const loginUser = TryCatch(async (req, res) => {
     expiresIn: "15d",
   });
 
-  res.status(200).json({ message: "User logged in successfully", token, user });
+  res.status(200).json({ message: "Logged in successfully", token, user });
 });
 
 const allowedRoles = ["customer", "rider", "seller"] as const;
