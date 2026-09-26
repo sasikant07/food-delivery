@@ -52,6 +52,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
           const data = await response.json();
           setLocation({ latitude, longitude, formattedAddress: data.display_name || "Current Location" });
           setCity(data.address.city || data.address.town || data.address.village || "Your Location");
+          setLoadingLocation(false);
         } catch (error) {
           setLocation({
             latitude,
@@ -59,6 +60,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
             formattedAddress: "Current Location",
           });
           setCity("Failed to load location");
+          setLoadingLocation(false);
         }
       }
     );

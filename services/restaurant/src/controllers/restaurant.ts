@@ -3,6 +3,7 @@ import getBuffer from "../config/datauri.js";
 import { AuthenticatedRequest } from "../middlewares/isAuth.js";
 import TryCatch from "../middlewares/trycatch.js";
 import Restaurant from "../models/Restaurant.js";
+import jwt from "jsonwebtoken";
 
 export const addRestaurant = TryCatch(async (req: AuthenticatedRequest, res) => {
     const user = req.user;
@@ -55,17 +56,49 @@ export const addRestaurant = TryCatch(async (req: AuthenticatedRequest, res) => 
         name,
         description,
         phone,
-        image: uploadResult,
+        image: uploadResult.url,
         ownerId: user._id,
         autoLocation: {
             type: "Point",
             coordinates: [Number(longitude), Number(latitude)],
             formattedAddress,
-        }
+        },
+        isVerified: false,
     });
 
     return res.status(201).json({
         message: "Restaurant created successfully",
         restaurant
     })
+});
+
+export const fetchMyRestaurant = TryCatch(async (req: AuthenticatedRequest, res) => {
+    if (!req.user) {
+        return res.status(401).json({
+            message: "Unauthorised",
+        });
+    }
+
+    const restaurant = await Restaurant.findOne({
+        ownerId: req.user._id,
+    });
+
+    if (!restaurant) {
+        return res.status(404).json({
+            message: "Restaurant not found",
+        });
+    }
+
+    if (!req.user.restaurantId) {
+        const token = jwt.sign({
+            user: {
+                ...req.user,
+                restaurantId: restaurant._id,
+            }
+        }, process.env.JWT_SECRET as string, {
+            expiresIn: "15d"
+        });
+        return res.json({restaurant, token});
+    }
+    return res.json({restaurant});
 });
