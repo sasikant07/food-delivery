@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchMyRestaurant = exports.addRestaurant = void 0;
+exports.updateRestaurant = exports.updateStatusRestaurant = exports.fetchMyRestaurant = exports.addRestaurant = void 0;
 const axios_1 = __importDefault(require("axios"));
 const datauri_js_1 = __importDefault(require("../config/datauri.js"));
 const trycatch_js_1 = __importDefault(require("../middlewares/trycatch.js"));
@@ -89,4 +89,59 @@ exports.fetchMyRestaurant = (0, trycatch_js_1.default)(async (req, res) => {
         return res.json({ restaurant, token });
     }
     return res.json({ restaurant });
+});
+exports.updateStatusRestaurant = (0, trycatch_js_1.default)(async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({
+            message: "Please login to continue",
+        });
+    }
+    const { status } = req.body;
+    if (typeof status !== "boolean") {
+        return res.status(400).json({
+            message: "Please provide a valid(Boolean) status",
+        });
+    }
+    const restaurant = await Restaurant_js_1.default.findOneAndUpdate({
+        ownerId: req.user._id,
+    }, {
+        isOpen: status,
+    }, {
+        new: true,
+    });
+    if (!restaurant) {
+        return res.status(404).json({
+            message: "Restaurant not found",
+        });
+    }
+    return res.json({
+        message: "Restaurant status updated successfully",
+        restaurant,
+    });
+});
+exports.updateRestaurant = (0, trycatch_js_1.default)(async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({
+            message: "Please login to continue",
+        });
+    }
+    const { name, description, phone } = req.body;
+    const restaurant = await Restaurant_js_1.default.findOneAndUpdate({
+        ownerId: req.user._id,
+    }, {
+        name,
+        description,
+        phone,
+    }, {
+        new: true,
+    });
+    if (!restaurant) {
+        return res.status(404).json({
+            message: "Restaurant not found",
+        });
+    }
+    return res.json({
+        message: "Restaurant updated successfully",
+        restaurant,
+    });
 });

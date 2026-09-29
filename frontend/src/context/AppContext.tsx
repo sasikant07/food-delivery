@@ -2,6 +2,7 @@ import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
 import { authService } from "../main";
 import type { AppContextType, LocationData, User } from "../types";
+import { Toaster } from "react-hot-toast";
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -44,31 +45,56 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     alert("Please allow location access to use this app.");
     setLoadingLocation(true);
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        try {
-          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`);
-          const data = await response.json();
-          setLocation({ latitude, longitude, formattedAddress: data.display_name || "Current Location" });
-          setCity(data.address.city || data.address.town || data.address.village || "Your Location");
-          setLoadingLocation(false);
-        } catch (error) {
-          setLocation({
-            latitude,
-            longitude,
-            formattedAddress: "Current Location",
-          });
-          setCity("Failed to load location");
-          setLoadingLocation(false);
-        }
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const { latitude, longitude } = position.coords;
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
+        );
+        const data = await response.json();
+        setLocation({
+          latitude,
+          longitude,
+          formattedAddress: data.display_name || "Current Location",
+        });
+        setCity(
+          data.address.city ||
+            data.address.town ||
+            data.address.village ||
+            "Your Location",
+        );
+        setLoadingLocation(false);
+      } catch (error) {
+        setLocation({
+          latitude,
+          longitude,
+          formattedAddress: "Current Location",
+        });
+        setCity("Failed to load location");
+        setLoadingLocation(false);
       }
-    );
+    });
   }, [user]);
 
-  return <AppContext.Provider value={{isAuth, setIsAuth, user, setUser, loading, setLoading, location, loadingLocation, city}}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider
+      value={{
+        isAuth,
+        setIsAuth,
+        user,
+        setUser,
+        loading,
+        setLoading,
+        location,
+        loadingLocation,
+        city,
+      }}
+    >
+      {children}
+      <Toaster />
+    </AppContext.Provider>
+  );
 };
-
 
 export const useAppData = (): AppContextType => {
   const context = useContext(AppContext);
@@ -76,4 +102,4 @@ export const useAppData = (): AppContextType => {
     throw new Error("useAppData must be used within an AppProvider");
   }
   return context;
-}
+};

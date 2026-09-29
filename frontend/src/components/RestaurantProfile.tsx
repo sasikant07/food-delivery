@@ -62,6 +62,7 @@ const RestaurantProfile = ({
         });
         onUpdate(data.restaurant);
         toast.success(data.message);
+        setEditMode(false);
       } catch (error: any) {
         toast.error(error.response?.data?.message);
       } finally {
