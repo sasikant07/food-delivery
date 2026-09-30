@@ -60,7 +60,7 @@ const MenuItemSchema = new mongoose_1.Schema({
     },
     isAvailable: {
         type: Boolean,
-        required: true
+        default: true
     }
 }, { timestamps: true });
 const MenuItem = mongoose_1.default.model("MenuItem", MenuItemSchema);

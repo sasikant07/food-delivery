@@ -91,7 +91,10 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       }}
     >
       {children}
-      <Toaster />
+      <Toaster
+        position="top-right"
+        containerStyle={{ zIndex: 10000 }}
+      />
     </AppContext.Provider>
   );
 };
