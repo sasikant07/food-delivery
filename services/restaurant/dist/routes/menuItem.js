@@ -10,6 +10,6 @@ const multer_1 = __importDefault(require("../middlewares/multer"));
 const router = express_1.default.Router();
 router.post("/new", isAuth_1.isAuth, isAuth_1.isSeller, multer_1.default, menuItem_1.addMenuItem);
 router.get("/all/:id", isAuth_1.isAuth, menuItem_1.getAllItems);
-router.delete("/:id", isAuth_1.isAuth, isAuth_1.isSeller, menuItem_1.deletemenuItem);
-router.put("/status/:id", isAuth_1.isAuth, isAuth_1.isSeller, menuItem_1.toggleMenuItemAvailability);
+router.delete("/:itemId", isAuth_1.isAuth, isAuth_1.isSeller, menuItem_1.deletemenuItem);
+router.put("/status/:itemId", isAuth_1.isAuth, isAuth_1.isSeller, menuItem_1.toggleMenuItemAvailability);
 exports.default = router;

@@ -41,8 +41,10 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   }, []);
 
   useEffect(() => {
-    if (!navigator.geolocation) return;
-    alert("Please allow location access to use this app.");
+    if (!navigator.geolocation)  {
+      alert("Please allow location access to use this app.");
+      return;
+    }
     setLoadingLocation(true);
 
     navigator.geolocation.getCurrentPosition(async (position) => {

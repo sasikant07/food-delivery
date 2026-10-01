@@ -128,7 +128,7 @@ exports.toggleMenuItemAvailability = (0, trycatch_1.default)(async (req, res) =>
     item.isAvailable = !item.isAvailable;
     await item.save();
     res.status(200).json({
-        messgae: `Item marked as ${item.isAvailable ? "available" : "unavailable"}`,
+        message: `Item marked as ${item.isAvailable ? "available" : "unavailable"}`,
         item
     });
 });

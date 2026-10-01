@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { IRestaurant } from "../types";
+import { type IMenuItem, type IRestaurant } from "../types";
 import axios from "axios";
 import { restaurantService } from "../main";
 import AddRestaurant from "../components/AddRestaurant";
@@ -13,6 +13,7 @@ const Restaurant = () => {
     const [restaurant, setRestaurant] = useState<IRestaurant | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [tab, setTab] = useState<SellerTab>("menu");
+    const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
 
     const fetchMyRestaurant = async () => {
         try {
@@ -34,9 +35,28 @@ const Restaurant = () => {
         }
     }
 
+    const fetchMenuItems = async (restaurantId: string) => {
+        try {
+            const {data} = await axios.get(`${restaurantService}/api/item/all/${restaurantId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            setMenuItems(data);
+        } catch (error: any) {
+            console.error("Error fetching menu items:", error.message);
+        }
+    };
+
     useEffect(() => {
         fetchMyRestaurant();
     }, []);
+
+    useEffect(() => {
+        if (restaurant) {
+            fetchMenuItems(restaurant._id);
+        }
+    }, [restaurant]);
 
     if (loading) {
         return <div className="flex min-h-screen items-center justify-center"><p className="text-gray-500 text-lg">Loading your restaurant...</p></div>;
@@ -68,8 +88,8 @@ const Restaurant = () => {
             ))}
         </div>
         <div className="p-5">
-            {tab === "menu" && <MenuItems />}
-            {tab === "add-item" && <AddMenuItem onItemAdded={() => {}}/>}
+            {tab === "menu" && <MenuItems items={menuItems} onItemsChanged={() => fetchMenuItems(restaurant._id)} isSeller={true} />}
+            {tab === "add-item" && <AddMenuItem onItemAdded={() => fetchMenuItems(restaurant._id)}/>}
             {tab === "sales" && <p>Sales Page</p>}
         </div>
       </div>

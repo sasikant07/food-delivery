@@ -158,7 +158,7 @@ export const toggleMenuItemAvailability = TryCatch(async(req: AuthenticatedReque
     await item.save();
 
     res.status(200).json({
-        messgae: `Item marked as ${item.isAvailable ? "available" : "unavailable"}`,
+        message: `Item marked as ${item.isAvailable ? "available" : "unavailable"}`,
         item
     })
 });
