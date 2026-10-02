@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateRestaurant = exports.updateStatusRestaurant = exports.fetchMyRestaurant = exports.addRestaurant = void 0;
+exports.fetchSingleRestaurant = exports.getNearbyRestaurants = exports.updateRestaurant = exports.updateStatusRestaurant = exports.fetchMyRestaurant = exports.addRestaurant = void 0;
 const axios_1 = __importDefault(require("axios"));
 const datauri_js_1 = __importDefault(require("../config/datauri.js"));
 const trycatch_js_1 = __importDefault(require("../middlewares/trycatch.js"));
@@ -144,4 +144,54 @@ exports.updateRestaurant = (0, trycatch_js_1.default)(async (req, res) => {
         message: "Restaurant updated successfully",
         restaurant,
     });
+});
+exports.getNearbyRestaurants = (0, trycatch_js_1.default)(async (req, res) => {
+    const { latitude, longitude, radius = 5000, search = "" } = req.query;
+    if (!latitude || !longitude) {
+        return res.status(400).json({
+            message: "Please provide latitude and longitude",
+        });
+    }
+    const query = {
+        isVerified: true,
+    };
+    if (search && typeof search === "string") {
+        query.name = { $regex: search, $options: "i" }; // $options: i means Case-insensitive search 
+    }
+    const restaurants = await Restaurant_js_1.default.aggregate([
+        {
+            $geoNear: {
+                near: {
+                    type: "Point",
+                    coordinates: [Number(longitude), Number(latitude)],
+                },
+                distanceField: "distance",
+                maxDistance: Number(radius),
+                spherical: true,
+                query,
+            }
+        },
+        {
+            $sort: {
+                isOpen: -1,
+                distance: 1,
+            }
+        },
+        {
+            $addFields: {
+                distanceInKm: {
+                    $round: [{ $divide: ["$distance", 1000] }, 2]
+                }
+            }
+        }
+    ]);
+    res.json({
+        success: true,
+        count: restaurants.length,
+        restaurants,
+    });
+});
+exports.fetchSingleRestaurant = (0, trycatch_js_1.default)(async (req, res) => {
+    const restaurant = await Restaurant_js_1.default.findById(req.params.id);
+    res.json(restaurant);
 });

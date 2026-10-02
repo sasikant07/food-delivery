@@ -12,4 +12,6 @@ router.post("/new", isAuth_js_1.isAuth, isAuth_js_1.isSeller, multer_js_1.defaul
 router.get("/my", isAuth_js_1.isAuth, isAuth_js_1.isSeller, restaurant_js_1.fetchMyRestaurant);
 router.put("/status", isAuth_js_1.isAuth, isAuth_js_1.isSeller, restaurant_js_1.updateStatusRestaurant);
 router.put("/edit", isAuth_js_1.isAuth, isAuth_js_1.isSeller, restaurant_js_1.updateRestaurant);
+router.get("/all", isAuth_js_1.isAuth, restaurant_js_1.getNearbyRestaurants);
+router.get("/:id", isAuth_js_1.isAuth, restaurant_js_1.fetchSingleRestaurant);
 exports.default = router;
