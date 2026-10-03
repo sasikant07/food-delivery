@@ -4,6 +4,7 @@ import { useAppData } from "../context/AppContext";
 import type { IRestaurant } from "../types";
 import axios from "axios";
 import { restaurantService } from "../main";
+import RestaurantCard from "../components/RestaurantCard";
 
 const Home = () => {
   const [restaurants, setRestaurants] = useState<IRestaurant[]>([]);
@@ -75,7 +76,22 @@ const Home = () => {
     );
   }
 
-  return <div>Home</div>;
+  return <div className="mx-auto max-w-7xl px-4 py-6">
+    {restaurants.length > 0 ? (
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4">
+        {restaurants.map((restaurant) => {
+          const [resLng, resLat] = restaurant.autoLocation.coordinates;
+          const distance = getDistanceInKM(
+            location.latitude,
+            location.longitude,
+            resLat,
+            resLng,
+          );
+          return <RestaurantCard key={restaurant._id} id={restaurant._id} name={restaurant.name} image={restaurant.image ?? ""} distance={`${distance}`} isOpen={restaurant.isOpen} />;
+        })}
+      </div>
+    ) : (<div className="text-gray-500 text-center">No restaurants found.</div>)}
+  </div>;
 };
 
 export default Home;

@@ -59,7 +59,7 @@ const Restaurant = () => {
     }, [restaurant]);
 
     if (loading) {
-        return <div className="flex min-h-screen items-center justify-center"><p className="text-gray-500 text-lg">Loading your restaurant...</p></div>;
+        return <div className="flex h-[60vh] items-center justify-center"><p className="text-gray-500 text-lg">Loading your restaurant...</p></div>;
     }
 
     if (!restaurant) {

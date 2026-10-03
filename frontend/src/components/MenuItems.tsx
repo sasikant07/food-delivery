@@ -10,11 +10,11 @@ import toast from "react-hot-toast";
 
 interface MenuItemsProps {
   items: IMenuItem[];
-  onItemsChanged: () => void;
+  onItemsDelete: () => void;
   isSeller: boolean;
 }
 
-const MenuItems = ({ items, onItemsChanged, isSeller }: MenuItemsProps) => {
+const MenuItems = ({ items, onItemsDelete, isSeller }: MenuItemsProps) => {
   const [loadingItemId, setLoadingItemId] = useState<null | string>(null);
 
   const handleDeleteItem = async (itemId: string) => {
@@ -28,7 +28,7 @@ const MenuItems = ({ items, onItemsChanged, isSeller }: MenuItemsProps) => {
         },
       });
       toast.success("Item deleted successfully");
-      onItemsChanged();
+      onItemsDelete();
     } catch (error: any) {
       console.error("Error deleting item:", error.message);
       toast.error(error.message || "Failed to delete item");
@@ -43,7 +43,7 @@ const MenuItems = ({ items, onItemsChanged, isSeller }: MenuItemsProps) => {
         },
       });
       toast.success(data.message);
-      onItemsChanged();
+      onItemsDelete();
     } catch (error: any) {
       console.error("Error updating item availability:", error.message);
       toast.error(error.message || "Failed to update item status");
