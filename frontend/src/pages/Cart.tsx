@@ -1,0 +1,162 @@
+import { useNavigate } from "react-router-dom";
+import { useAppData } from "../context/AppContext";
+import { useState } from "react";
+import type { ICart, IMenuItem, IRestaurant } from "../types";
+import axios from "axios";
+import { restaurantService } from "../main";
+import toast from "react-hot-toast";
+import { VscLoading } from "react-icons/vsc";
+import { BiMinus, BiPlus } from "react-icons/bi";
+
+const Cart = () => {
+  const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
+  const [clearingCart, setClearingCart] = useState(false);
+  const { cart, subTotal, quantity, fetchCart } = useAppData();
+  const navigate = useNavigate();
+
+  if (!cart || cart.length === 0) {
+    return (
+      <div className="flex min-h[60vh] items-center justify-center">
+        <p className="text-gray-500 text-lg">Your cart is empty</p>
+      </div>
+    );
+  }
+
+  const restaurant = cart[0].restaurantId as IRestaurant;
+
+  const deliveryFee = subTotal < 250 ? 49 : 0;
+
+  const platformFee = 7;
+
+  const grandTotal = subTotal + deliveryFee + platformFee;
+
+  const increaseQuantity = async (itemId: string) => {
+    try {
+      setLoadingItemId(itemId);
+      await axios.put(
+        `${restaurantService}/api/cart/inc`,
+        { itemId },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      await fetchCart();
+    } catch (error) {
+      toast.error("Something went wrong.");
+      console.error(error);
+    } finally {
+      setLoadingItemId(null);
+    }
+  };
+
+  const decreaseQuantity = async (itemId: string) => {
+    try {
+      setLoadingItemId(itemId);
+      await axios.put(
+        `${restaurantService}/api/cart/dec`,
+        { itemId },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      await fetchCart();
+    } catch (error) {
+      toast.error("Something went wrong.");
+      console.error(error);
+    } finally {
+      setLoadingItemId(null);
+    }
+  };
+
+  const clearCart = async () => {
+    const confirm = window.confirm("Are you sure you want to clear the cart?");
+    if (!confirm) return;
+
+    try {
+      setClearingCart(true);
+      await axios.delete(`${restaurantService}/api/cart/clear`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      await fetchCart();
+    } catch (error) {
+      toast.error("Something went wrong.");
+      console.error(error);
+    } finally {
+      setClearingCart(false);
+    }
+  };
+
+  const checkout = () => {
+    navigate("/checkout");
+  };
+
+  return (
+    <div className="mx-auto max-w-5xl px-4 py-6 space-y-6">
+      <div className="rounded-xl bg-white p-4 shadow-sm">
+        <h2 className="text-xl font-semibold">{restaurant.name}</h2>
+        <p className="text-sm text-gray-500">
+          {restaurant.autoLocation.formattedAddress}
+        </p>
+      </div>
+      <div className="space-y-4">
+        {cart.map((cartItem: ICart) => {
+          const item = cartItem.itemId as IMenuItem;
+          const isLoading = loadingItemId === item._id;
+
+          return (
+            <div
+              key={item._id}
+              className="flex items-center gap-4 rounded-xl bg-white p-4 shadow-sm"
+            >
+              <img
+                src={item.image}
+                alt={item.name}
+                className="h-20 w-20 rounded object-cover"
+              />
+              <div className="flex-1">
+                <h3 className="font-semibold">{item.name}</h3>
+                <p className="text-sm text-gray-500">₹{item.price}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  className="rounded-full border p-2 hover:bg-gray-100 disabled:opacity-50"
+                  disabled={isLoading}
+                  onClick={() => decreaseQuantity(item._id)}
+                >
+                  {isLoading ? (
+                    <VscLoading size={16} className="animate-spin" />
+                  ) : (
+                    <BiMinus size={16} />
+                  )}
+                </button>
+                <span className="font-medium">{cartItem.quantity}</span>
+                <button
+                  className="rounded-full border p-2 hover:bg-gray-100 disabled:opacity-50"
+                  disabled={isLoading}
+                  onClick={() => increaseQuantity(item._id)}
+                >
+                  {isLoading ? (
+                    <VscLoading size={16} className="animate-spin" />
+                  ) : (
+                    <BiPlus size={16} />
+                  )}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+export default Cart;

@@ -9,13 +9,14 @@ import Account from "./pages/Account";
 import { useAppData } from "./context/AppContext";
 import Restaurant from "./pages/Restaurant";
 import RestaurantPage from "./pages/RestaurantPage";
+import Cart from "./pages/Cart";
 
 const App = () => {
   const { user } = useAppData();
 
-  // if (user && user.role === "seller") {
-  //   return <Restaurant />
-  // }
+  if (user && user.role === "seller") {
+    return <Restaurant />
+  }
 
   return (
     <>
@@ -28,12 +29,9 @@ const App = () => {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Home />} />
             <Route path="/restaurant/:id" element={<RestaurantPage />} />
+            <Route path="/cart" element={<Cart />} />
             <Route path="/select-role" element={<SelectRole />} />
             <Route path="/account" element={<Account />} />
-            <Route
-              path="/restaurant"
-              element={user?.role === "seller" ? <Restaurant /> : <Navigate to="/" replace />}
-            />
           </Route>
         </Routes>
       </BrowserRouter>

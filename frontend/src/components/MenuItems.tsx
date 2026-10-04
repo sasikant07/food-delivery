@@ -2,11 +2,12 @@ import { useState } from "react";
 import type { IMenuItem } from "../types";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { BiTrash } from "react-icons/bi";
-import { BsCart } from "react-icons/bs";
+import { BsCartPlus } from "react-icons/bs";
 import { VscLoading } from "react-icons/vsc";
 import axios from "axios";
 import { restaurantService } from "../main";
 import toast from "react-hot-toast";
+import { useAppData } from "../context/AppContext";
 
 interface MenuItemsProps {
   items: IMenuItem[];
@@ -15,7 +16,8 @@ interface MenuItemsProps {
 }
 
 const MenuItems = ({ items, onItemsDelete, isSeller }: MenuItemsProps) => {
-  const [loadingItemId, setLoadingItemId] = useState<null | string>(null);
+  const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
+   const {fetchCart} = useAppData();
 
   const handleDeleteItem = async (itemId: string) => {
     const confirrmDelete = window.confirm("Are you sure you want to delete this item?");
@@ -38,7 +40,7 @@ const MenuItems = ({ items, onItemsDelete, isSeller }: MenuItemsProps) => {
   const handleToggleAvailability = async (itemId: string) => {
     try {
       const {data} = await axios.put(`${restaurantService}/api/item/status/${itemId}`, {}, {
-        headers: {
+          headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
@@ -47,6 +49,27 @@ const MenuItems = ({ items, onItemsDelete, isSeller }: MenuItemsProps) => {
     } catch (error: any) {
       console.error("Error updating item availability:", error.message);
       toast.error(error.message || "Failed to update item status");
+    }
+  };
+
+  const addTCart = async (restaurantId: string, itemId: string) => {
+    try {
+      setLoadingItemId(itemId);
+      const {data} = await axios.post(`${restaurantService}/api/cart/add`, {
+        restaurantId,
+        itemId,
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      toast.success(data.message);
+      fetchCart();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+      console.error(error);      
+    } finally {
+      setLoadingItemId(null);
     }
   }
 
@@ -105,11 +128,11 @@ const MenuItems = ({ items, onItemsDelete, isSeller }: MenuItemsProps) => {
                 )}
                 {!isSeller && (
                   <button
-                    className={`flex items-center justify-center rounded-lg p-2 ${!item.isAvailable || isLoading ? "cursor-not-allowed text-gray-400" : "bg-gray-200 text-red-500 hover:bg-red-50"}`}
+                    className={`flex items-center justify-center rounded-lg p-2 ${!item.isAvailable || isLoading ? "cursor-not-allowed text-gray-400" : "cursor-pointer bg-gray-200 text-red-500 hover:bg-red-50"}`}
                     disabled={!item.isAvailable || isLoading}
-                    onClick={() => {}}
+                    onClick={() => addTCart(item.restaurantId, item._id)}
                   >
-                    {isLoading ? <VscLoading className="animate-spin" size={18} /> : <BsCart size={18} />}
+                    {isLoading ? <VscLoading className="animate-spin" size={18} /> : <BsCartPlus size={18} />}
                   </button>
                 )}
               </div>
