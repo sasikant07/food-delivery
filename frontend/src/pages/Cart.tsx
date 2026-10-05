@@ -7,6 +7,7 @@ import { restaurantService } from "../main";
 import toast from "react-hot-toast";
 import { VscLoading } from "react-icons/vsc";
 import { BiMinus, BiPlus } from "react-icons/bi";
+import { TbTrash } from "react-icons/tb";
 
 const Cart = () => {
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
@@ -16,7 +17,7 @@ const Cart = () => {
 
   if (!cart || cart.length === 0) {
     return (
-      <div className="flex min-h[60vh] items-center justify-center">
+      <div className="flex min-h-[60vh] items-center justify-center">
         <p className="text-gray-500 text-lg">Your cart is empty</p>
       </div>
     );
@@ -151,9 +152,55 @@ const Cart = () => {
                   )}
                 </button>
               </div>
+              <p className="w-20 text-right font-medium">
+                ₹{item.price * cartItem.quantity}
+              </p>
             </div>
           );
         })}
+      </div>
+      <div className="rounded-xl bg-white p-4 shadow-sm space-y-3">
+        <div className="flex justify-between text-sm">
+          <span className="">Total Items</span>
+          <span className="">{quantity}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="">Sub Total</span>
+          <span className="">₹{subTotal}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="">Delivery Fee</span>
+          <span className="">
+            {deliveryFee === 0 ? "Free" : `₹${deliveryFee}`}
+          </span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="">Platform Fee</span>
+          <span className="">₹{platformFee}</span>
+        </div>
+        {subTotal < 250 && (
+          <p className="text-xs text-gray-500">
+            Add item worth ₹{250 - subTotal} more to get free delivery
+          </p>
+        )}
+        <div className="flex justify-between text-base font-semibold border-t pt-2">
+          <span className="">Grand Total</span>
+          <span className="">₹{grandTotal}</span>
+        </div>
+        <button 
+          className={`mt-3 w-full rounded-lg bg-[#E23744] py-3 text-sm font-semibold text-white hover:bg-red-800 ${!restaurant.isOpen ? "opacity-50 cursor-not-allowed" : ""}`}
+          onClick={checkout}
+          disabled={!restaurant.isOpen}
+          >
+          {!restaurant.isOpen ? "Restaurant is closed" : "Proceed to Checkout"}
+        </button>
+        <button 
+          className="mt-3 w-full rounded-lg bg-gray-700 py-3 text-sm font-semibold text-white hover:bg-gray-900 flex justify-center items-center gap-3"
+          onClick={clearCart}
+          disabled={clearingCart}
+          >
+          Clear Cart <TbTrash size={16}/>
+        </button>
       </div>
     </div>
   );
