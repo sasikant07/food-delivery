@@ -1,6 +1,6 @@
 import express from "express";
 import { isAuth } from "../middlewares/isAuth";
-import { addAddress, deleteAddress, getMyAddressess } from "../controllers/Address";
+import { addAddress, deleteAddress, getMyAddressess } from "../controllers/address";
 
 const router = express.Router();
 
