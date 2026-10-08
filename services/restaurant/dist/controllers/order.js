@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createOrder = void 0;
+exports.fetchOrderForPayment = exports.createOrder = void 0;
 const trycatch_1 = __importDefault(require("../middlewares/trycatch"));
 const Address_1 = __importDefault(require("../models/Address"));
 const Cart_1 = __importDefault(require("../models/Cart"));
@@ -107,5 +107,28 @@ exports.createOrder = (0, trycatch_1.default)(async (req, res) => {
         message: "Order created successfully",
         orderId: order._id.toString(),
         amount: totalAmount,
+    });
+});
+exports.fetchOrderForPayment = (0, trycatch_1.default)(async (req, res) => {
+    if (req.headers["x-internal-key"] !== process.env.INTERNAL_SERICE_KEY) {
+        return res.status(403).json({
+            message: "Forbidden"
+        });
+    }
+    const order = await Order_1.default.findById(req.params.id);
+    if (!order) {
+        return res.status(404).json({
+            message: "Order not found"
+        });
+    }
+    if (order.paymentStatus !== "pending") {
+        return res.status(400).json({
+            message: "Order already is paid"
+        });
+    }
+    return res.status(200).json({
+        orderId: order._id,
+        amount: order.totalAmount,
+        currency: "INR",
     });
 });

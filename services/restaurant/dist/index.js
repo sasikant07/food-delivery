@@ -10,6 +10,7 @@ const restaurant_js_1 = __importDefault(require("./routes/restaurant.js"));
 const menuItem_js_1 = __importDefault(require("./routes/menuItem.js"));
 const cart_js_1 = __importDefault(require("./routes/cart.js"));
 const address_js_1 = __importDefault(require("./routes/address.js"));
+const order_js_1 = __importDefault(require("./routes/order.js"));
 const cors_1 = __importDefault(require("cors"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -20,6 +21,7 @@ app.use("/api/restaurant", restaurant_js_1.default);
 app.use("/api/item", menuItem_js_1.default);
 app.use("/api/cart", cart_js_1.default);
 app.use("/api/address", address_js_1.default);
+app.use("/api/order", order_js_1.default);
 app.listen(PORT, () => {
     console.log(`Restaurant service is running on port ${PORT}`);
     (0, db_1.default)();
