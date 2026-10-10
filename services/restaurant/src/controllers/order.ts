@@ -132,7 +132,7 @@ export const createOrder = TryCatch(async (req: AuthenticatedRequest, res) => {
 });
 
 export const fetchOrderForPayment = TryCatch(async(req, res) => {
-  if(req.headers["x-internal-key"] !== process.env.INTERNAL_SERICE_KEY) {
+  if(req.headers["x-internal-key"] !== process.env.INTERNAL_SERVICE_KEY) {
     return res.status(403).json({
       message: "Forbidden"
     })

@@ -8,5 +8,5 @@ const order_1 = require("../controllers/order");
 const isAuth_1 = require("../middlewares/isAuth");
 const router = express_1.default.Router();
 router.post("/new", isAuth_1.isAuth, order_1.createOrder);
-router.get("/payment", order_1.fetchOrderForPayment);
+router.get("/payment/:id", order_1.fetchOrderForPayment);
 exports.default = router;

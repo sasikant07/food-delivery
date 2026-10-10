@@ -8,7 +8,10 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const cloudinary_1 = __importDefault(require("cloudinary"));
 const cors_1 = __importDefault(require("cors"));
 const cloudinary_js_1 = __importDefault(require("./routes/cloudinary.js"));
+const payment_js_1 = __importDefault(require("./routes/payment.js"));
+const rabbitmq_js_1 = require("./config/rabbitmq.js");
 dotenv_1.default.config();
+(0, rabbitmq_js_1.connectRabbitMQ)();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json({ limit: "50mb" }));
@@ -23,6 +26,7 @@ cloudinary_1.default.v2.config({
     api_secret: CLOUD_SECRET_KEY,
 });
 app.use("/api", cloudinary_js_1.default);
+app.use("/api/payment", payment_js_1.default);
 const PORT = process.env.PORT || 5070;
 app.listen(PORT, () => {
     console.log(`Utils service is running on port ${PORT}`);
