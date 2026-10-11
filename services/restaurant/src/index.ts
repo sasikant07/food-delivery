@@ -7,6 +7,8 @@ import cartRoutes from "./routes/cart.js";
 import addressRoutes from "./routes/address.js";
 import orderRoutes from "./routes/order.js";
 import cors from "cors";
+import { connectRabbitMQ } from "./config/rabbitmq";
+import { startPaymentConsumer } from "./config/payment.consumer";
 
 dotenv.config();
 
@@ -23,7 +25,14 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/address", addressRoutes);
 app.use("/api/order", orderRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Restaurant service is running on port ${PORT}`);
-  connectDB();
-});
+async function startServer() {
+  await connectRabbitMQ();
+  startPaymentConsumer();
+
+  app.listen(PORT, () => {
+    console.log(`Restaurant service is running on port ${PORT}`);
+    connectDB();
+  });
+}
+
+void startServer();

@@ -12,6 +12,8 @@ const cart_js_1 = __importDefault(require("./routes/cart.js"));
 const address_js_1 = __importDefault(require("./routes/address.js"));
 const order_js_1 = __importDefault(require("./routes/order.js"));
 const cors_1 = __importDefault(require("cors"));
+const rabbitmq_1 = require("./config/rabbitmq");
+const payment_consumer_1 = require("./config/payment.consumer");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -22,7 +24,12 @@ app.use("/api/item", menuItem_js_1.default);
 app.use("/api/cart", cart_js_1.default);
 app.use("/api/address", address_js_1.default);
 app.use("/api/order", order_js_1.default);
-app.listen(PORT, () => {
-    console.log(`Restaurant service is running on port ${PORT}`);
-    (0, db_1.default)();
-});
+async function startServer() {
+    await (0, rabbitmq_1.connectRabbitMQ)();
+    (0, payment_consumer_1.startPaymentConsumer)();
+    app.listen(PORT, () => {
+        console.log(`Restaurant service is running on port ${PORT}`);
+        (0, db_1.default)();
+    });
+}
+void startServer();

@@ -12,7 +12,7 @@ const connectRabbitMQ = async () => {
     await channel.assertQueue(process.env.PAYMENT_QUEUE, {
         durable: true,
     });
-    console.log("🐇 connected to Rabbitmq");
+    console.log("🐇 connected to Rabbitmq (utils service)");
 };
 exports.connectRabbitMQ = connectRabbitMQ;
 const getChannel = () => channel;
