@@ -21,7 +21,7 @@ const createRazorpayOrder = async (req, res) => {
         receipt: orderId,
     });
     res.json({
-        razoprpayOrderId: razoprpayOrder.id,
+        razorpayOrderId: razoprpayOrder.id,
         key: process.env.RAZORPAY_KEY_SECRET,
     });
 };

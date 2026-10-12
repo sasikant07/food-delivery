@@ -8,6 +8,7 @@ import "leaflet/dist/leaflet.css";
 
 export const authService = 'http://localhost:5050';
 export const restaurantService = 'http://localhost:5080';
+export const utilService = 'http://localhost:5070';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -85,7 +85,7 @@ const OrderSchema = new mongoose_1.Schema({
     },
     deliveryAddress: {
         formattedAddress: {
-            tyep: String,
+            type: String,
             required: true,
         },
         mobile: {

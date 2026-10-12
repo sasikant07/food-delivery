@@ -95,7 +95,7 @@ const OrderSchema: Schema = new Schema(
     },
     deliveryAddress: {
       formattedAddress: {
-        tyep: String,
+        type: String,
         required: true,
       },
       mobile: {
