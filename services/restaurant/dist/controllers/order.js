@@ -16,7 +16,7 @@ exports.createOrder = (0, trycatch_1.default)(async (req, res) => {
             message: "Unauthorized",
         });
     }
-    const { paymentMethod, addressId, distance } = req.body;
+    const { paymentMethod, addressId } = req.body;
     if (!addressId) {
         return res.status(400).json({
             message: "Address is required",
@@ -31,6 +31,18 @@ exports.createOrder = (0, trycatch_1.default)(async (req, res) => {
             message: "Address not found",
         });
     }
+    const getDistanceInKM = (lat1, lon1, lat2, lon2) => {
+        const R = 6371; // Radius of the Earth in kilometers
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLon = ((lon2 - lon1) * Math.PI) / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((lat1 * Math.PI) / 180) *
+                Math.cos((lat2 * Math.PI) / 180) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return +(R * c).toFixed(2); // Distance in kilometers
+    };
     const cartItems = await Cart_1.default.find({ userId: user._id })
         .populate("itemId")
         .populate("restaurantId");
@@ -57,6 +69,7 @@ exports.createOrder = (0, trycatch_1.default)(async (req, res) => {
             message: "Sorry! this restaurant is closed for now",
         });
     }
+    const distance = getDistanceInKM(address.location.coordinates[1], address.location.coordinates[0], restaurant.autoLocation.coordinates[1], restaurant.autoLocation.coordinates[0]);
     let subTotal = 0;
     const orderItems = cartItems.map((cart) => {
         const item = cart.itemId;
@@ -112,18 +125,18 @@ exports.createOrder = (0, trycatch_1.default)(async (req, res) => {
 exports.fetchOrderForPayment = (0, trycatch_1.default)(async (req, res) => {
     if (req.headers["x-internal-key"] !== process.env.INTERNAL_SERVICE_KEY) {
         return res.status(403).json({
-            message: "Forbidden"
+            message: "Forbidden",
         });
     }
     const order = await Order_1.default.findById(req.params.id);
     if (!order) {
         return res.status(404).json({
-            message: "Order not found"
+            message: "Order not found",
         });
     }
     if (order.paymentStatus !== "pending") {
         return res.status(400).json({
-            message: "Order already is paid"
+            message: "Order already is paid",
         });
     }
     return res.status(200).json({
