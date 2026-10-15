@@ -253,7 +253,7 @@ const Checkout = () => {
           Pay with Razorpay
         </button>
         <button
-          disabled={!selectedAddressId || loadingRazorpay || creatingOrder}
+          disabled={!selectedAddressId || loadingStripe || creatingOrder}
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-black py-3 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
           onClick={payWithStripe}
         >
