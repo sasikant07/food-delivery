@@ -89,7 +89,7 @@ const payWithStripe = async (req, res) => {
 };
 exports.payWithStripe = payWithStripe;
 const verifyStripe = async (req, res) => {
-    const { sessionId } = req.body();
+    const { sessionId } = req.body;
     try {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
         if (!session) {

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import type { ICart, IMenuItem, IRestaurant } from "../types";
 import toast from "react-hot-toast";
 import { BiCreditCard, BiLoader } from "react-icons/bi";
+import { loadStripe } from "@stripe/stripe-js";
 
 interface IAddress {
   _id: string;
@@ -145,6 +146,8 @@ const Checkout = () => {
     }
   };
 
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
   const payWithStripe = async () => {
     try {
       setLoadingStripe(true);
@@ -152,7 +155,26 @@ const Checkout = () => {
 
       if (!order) return;
 
-      console.log("Stripe checkout", order);
+      const { orderId } = order;
+
+      try {
+        const stripe = await stripePromise;
+
+        const { data } = await axios.post(
+          `${utilService}/api/payment/stripe/create`,
+          {
+            orderId,
+          },
+        );
+
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          toast.error("Failed to create payment session");
+        }
+      } catch (error) {
+        toast.error("Payment failed");
+      }
     } catch (error) {
       console.log(error);
       toast.error("Payment failed");
@@ -246,7 +268,7 @@ const Checkout = () => {
           onClick={payWithRazorpay}
         >
           {loadingRazorpay ? (
-            <BiLoader size={18} className="animate-spin"/>
+            <BiLoader size={18} className="animate-spin" />
           ) : (
             <BiCreditCard size={18} />
           )}
@@ -258,7 +280,7 @@ const Checkout = () => {
           onClick={payWithStripe}
         >
           {loadingRazorpay ? (
-            <BiLoader size={18} className="animate-spin"/>
+            <BiLoader size={18} className="animate-spin" />
           ) : (
             <BiCreditCard size={18} />
           )}
