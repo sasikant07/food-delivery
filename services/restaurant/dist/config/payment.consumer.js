@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startPaymentConsumer = void 0;
+const axios_1 = __importDefault(require("axios"));
 const Order_js_1 = __importDefault(require("../models/Order.js"));
 const rabbitmq_js_1 = require("./rabbitmq.js");
 const startPaymentConsumer = async () => {
@@ -35,7 +36,17 @@ const startPaymentConsumer = async () => {
                 return;
             }
             console.log("✅ Order placed: ", order._id);
-            // socket.io code
+            await axios_1.default.post(`${process.env.REALTIME_SERVICE}/api/v1/internal/emit`, {
+                event: "order:new",
+                room: `Restaurant: ${order.restaurantId}`,
+                payload: {
+                    orderId: order._id,
+                },
+            }, {
+                headers: {
+                    "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
+                },
+            });
             channel.ack(msg);
         }
         catch (error) {

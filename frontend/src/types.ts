@@ -7,9 +7,9 @@ export interface User {
 }
 
 export interface LocationData {
-    latitude: number;
-    longitude: number;
-    formattedAddress: string;
+  latitude: number;
+  longitude: number;
+  formattedAddress: string;
 }
 
 export interface AppContextType {
@@ -29,20 +29,20 @@ export interface AppContextType {
 }
 
 export interface IRestaurant {
-    _id: string;
-    name: string;
-    description?: string;
-    image: string;
-    ownerId: string;
-    phone: number;
-    isVerified: boolean;
-    autoLocation: {
-        type: "Point",
-        coordinates: [number, number];
-        formattedAddress: string;
-    };
-    isOpen: boolean;
-    createdAt: Date;
+  _id: string;
+  name: string;
+  description?: string;
+  image: string;
+  ownerId: string;
+  phone: number;
+  isVerified: boolean;
+  autoLocation: {
+    type: "Point";
+    coordinates: [number, number];
+    formattedAddress: string;
+  };
+  isOpen: boolean;
+  createdAt: Date;
 }
 
 export interface IMenuItem {
@@ -63,6 +63,50 @@ export interface ICart {
   restaurantId: string | IRestaurant;
   itemId: string | IMenuItem;
   quantity: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IOrder {
+  _id: string;
+  userId: string;
+  restaurantId: string;
+  restaurantName: string;
+  riderId?: string | null;
+  riderPhone: number | null;
+  riderName: string | null;
+  distance: number;
+  riderAmount: number;
+  items: {
+    itemId: string;
+    name: string;
+    price: number;
+    quantity: number;
+  }[];
+  subTotal: number;
+  deliveryFee: number;
+  platformFee: number;
+  totalAmount: number;
+  addressId: string;
+  deliveryAddress: {
+    formattedAddress: string;
+    mobile: number;
+    latitude: number;
+    longitude: number;
+  };
+  status:
+    | "placed"
+    | "accepted"
+    | "preparing"
+    | "ready_for_rider"
+    | "rider_assigned"
+    | "picked_up"
+    | "delivered"
+    | "cancelled";
+
+  paymentMethod: "razorpay" | "stripe";
+  paymentStatus: "pending" | "paid" | "failed";
+  expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }

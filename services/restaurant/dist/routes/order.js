@@ -11,4 +11,6 @@ router.post("/new", isAuth_1.isAuth, order_1.createOrder);
 router.get("/payment/:id", order_1.fetchOrderForPayment);
 router.get("/:restaurantId", isAuth_1.isAuth, isAuth_1.isSeller, order_1.fetchRestaurantOrders);
 router.put("/:orderId", isAuth_1.isAuth, isAuth_1.isSeller, order_1.updateOrderSttaus);
+router.get("/my", isAuth_1.isAuth, order_1.getMyOrders);
+router.get("/:id", isAuth_1.isAuth, order_1.fetchSingleOrder);
 exports.default = router;

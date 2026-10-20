@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateOrderSttaus = exports.fetchRestaurantOrders = exports.fetchOrderForPayment = exports.createOrder = void 0;
+exports.fetchSingleOrder = exports.getMyOrders = exports.updateOrderSttaus = exports.fetchRestaurantOrders = exports.fetchOrderForPayment = exports.createOrder = void 0;
 const axios_1 = __importDefault(require("axios"));
 const trycatch_1 = __importDefault(require("../middlewares/trycatch"));
 const Address_1 = __importDefault(require("../models/Address"));
@@ -207,6 +207,31 @@ exports.updateOrderSttaus = (0, trycatch_1.default)(async (req, res) => {
     // now assign riders
     res.status(200).json({
         message: "Order status updated successfully",
-        order
+        order,
     });
+});
+exports.getMyOrders = (0, trycatch_1.default)(async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized!" });
+    }
+    const orders = await Order_1.default.find({
+        userId: req.user._id.toString(),
+        paymentStatus: "paid",
+    }).sort({ createdAt: -1 });
+    res.status(200).json({ orders });
+});
+exports.fetchSingleOrder = (0, trycatch_1.default)(async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized!" });
+    }
+    const order = await Order_1.default.findById(req.params.id);
+    if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+    }
+    if (order.userId !== req.user._id.toString()) {
+        return res.status(401).json({
+            message: "you are not allowed to view this order",
+        });
+    }
+    res.status(200).json(order);
 });

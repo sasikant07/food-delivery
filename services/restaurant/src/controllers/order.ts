@@ -273,9 +273,44 @@ export const updateOrderSttaus = TryCatch(
 
     // now assign riders
 
-    res.status(200).json({ 
-      message: "Order status updated successfully", 
-      order
+    res.status(200).json({
+      message: "Order status updated successfully",
+      order,
     });
+  },
+);
+
+export const getMyOrders = TryCatch(async (req: AuthenticatedRequest, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized!" });
+  }
+
+  const orders = await Order.find({
+    userId: req.user._id.toString(),
+    paymentStatus: "paid",
+  }).sort({ createdAt: -1 });
+
+  res.status(200).json({ orders });
+});
+
+export const fetchSingleOrder = TryCatch(
+  async (req: AuthenticatedRequest, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized!" });
+    }
+
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.userId !== req.user._id.toString()) {
+      return res.status(401).json({
+        message: "you are not allowed to view this order",
+      });
+    }
+
+    res.status(200).json(order);
   },
 );
