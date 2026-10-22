@@ -1,4 +1,4 @@
-import {createContext, useContext, useEffect, useRef, type ReactNode} from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import {io, Socket} from "socket.io-client";
 import { useAppData } from "./AppContext";
 import { realtimeService } from "../main";
@@ -12,44 +12,41 @@ const SocketContext = createContext<SocketContextType>({socket: null});
 
 export const SocketProvider = ({children}: {children: ReactNode}) => {
     const {isAuth} = useAppData();
-    const socketRef = useRef<Socket | null>(null);
+    const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
         if(!isAuth) {
-            socketRef.current?.disconnect();
-            socketRef.current = null;
+            setSocket(null);
             return;
         }
 
-        if(socketRef.current) return;
-
-        const socket = io(realtimeService, {
+        const client = io(realtimeService, {
             auth: {
                 token: localStorage.getItem("token"),
             },
             transports: ["websocket"],
         });
-        socketRef.current =socket;
+        setSocket(client);
 
-        socket.on("connect", () => {
-            console.log("Socket connected!", socket.id);
+        client.on("connect", () => {
+            console.log("Socket connected!", client.id);
         })
 
-        socket.on("disconnect", () => {
+        client.on("disconnect", () => {
             console.log("Socket disconnected!");
         })
 
-        socket.on("connect_error", (err) => {
+        client.on("connect_error", (err) => {
             console.log("Socket Error: ", err.message);
         })
 
         return () => {
-            socket.disconnect();
-            socketRef.current = null;
+            client.disconnect();
+            setSocket((current) => current === client ? null : current);
         }
     }, [isAuth]);
 
-    return <SocketContext.Provider value={{socket: socketRef.current}}>
+    return <SocketContext.Provider value={{socket}}>
         {children}
     </SocketContext.Provider>
 }

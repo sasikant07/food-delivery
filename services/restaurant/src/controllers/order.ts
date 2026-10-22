@@ -213,7 +213,7 @@ export const fetchRestaurantOrders = TryCatch(
 
 const ALLOWED_STATUSES = ["accepted", "preparing", "ready_for_rider"] as const;
 
-export const updateOrderSttaus = TryCatch(
+export const updateOrderStatus = TryCatch(
   async (req: AuthenticatedRequest, res) => {
     const user = req.user;
 
@@ -258,7 +258,7 @@ export const updateOrderSttaus = TryCatch(
       `${process.env.REALTIME_SERVICE}/api/v1/internal/emit`,
       {
         event: "order:update",
-        room: `user: ${order.userId}`,
+        room: `User: ${order.userId}`,
         payload: {
           orderId: order._id,
           status: order.status,

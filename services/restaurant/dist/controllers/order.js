@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchSingleOrder = exports.getMyOrders = exports.updateOrderSttaus = exports.fetchRestaurantOrders = exports.fetchOrderForPayment = exports.createOrder = void 0;
+exports.fetchSingleOrder = exports.getMyOrders = exports.updateOrderStatus = exports.fetchRestaurantOrders = exports.fetchOrderForPayment = exports.createOrder = void 0;
 const axios_1 = __importDefault(require("axios"));
 const trycatch_1 = __importDefault(require("../middlewares/trycatch"));
 const Address_1 = __importDefault(require("../models/Address"));
@@ -164,7 +164,7 @@ exports.fetchRestaurantOrders = (0, trycatch_1.default)(async (req, res) => {
         .json({ success: true, count: orders.length, orders });
 });
 const ALLOWED_STATUSES = ["accepted", "preparing", "ready_for_rider"];
-exports.updateOrderSttaus = (0, trycatch_1.default)(async (req, res) => {
+exports.updateOrderStatus = (0, trycatch_1.default)(async (req, res) => {
     const user = req.user;
     const { orderId } = req.params;
     const { status } = req.body;
@@ -194,7 +194,7 @@ exports.updateOrderSttaus = (0, trycatch_1.default)(async (req, res) => {
     await order.save();
     await axios_1.default.post(`${process.env.REALTIME_SERVICE}/api/v1/internal/emit`, {
         event: "order:update",
-        room: `user: ${order.userId}`,
+        room: `User: ${order.userId}`,
         payload: {
             orderId: order._id,
             status: order.status,
