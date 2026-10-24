@@ -61,3 +61,55 @@ export const addRiderProfile = TryCatch(async (req, res) => {
         riderProfile,
     });
 });
+export const fetchMyProfile = TryCatch(async (req, res) => {
+    const user = req.user;
+    if (!user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+    const account = await Rider.findOne({ userId: user._id });
+    res.status(200).json(account);
+});
+export const toggleRiderAvailability = TryCatch(async (req, res) => {
+    const user = req.user;
+    if (!user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+    if (user.role !== "rider") {
+        return res
+            .status(403)
+            .json({ message: "Only riders can create rider profile" });
+    }
+    const { isAvailable, latitude, longitude } = req.body;
+    if (typeof isAvailable !== "boolean") {
+        return res.status(400).json({
+            message: "IsAvaialble must be boolean",
+        });
+    }
+    if (latitude === undefined || longitude === undefined) {
+        return res.status(400).json({
+            message: "Location is required",
+        });
+    }
+    const rider = await Rider.findOne({ userId: user._id });
+    if (!rider) {
+        return res.status(404).json({
+            message: "Rider account not found",
+        });
+    }
+    if (isAvailable && !rider.isVerified) {
+        return res.status(403).json({
+            message: "Rider is not verified yet",
+        });
+    }
+    rider.isAvailable = isAvailable;
+    rider.location = {
+        type: "Point",
+        coordinates: [longitude, latitude],
+    };
+    rider.lastActiveAt = new Date();
+    await rider.save();
+    res.status(200).json({
+        message: isAvailable ? "Rider is now available" : "Rider is now offline",
+        rider,
+    });
+});

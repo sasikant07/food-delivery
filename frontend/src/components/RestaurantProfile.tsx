@@ -4,6 +4,7 @@ import { restaurantService } from "../main";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { BiEdit, BiMapPin, BiSave } from "react-icons/bi";
+import { useAppData } from "../context/AppContext";
 
 interface RestaurantProfileProps {
   restaurant: IRestaurant;
@@ -25,6 +26,7 @@ const RestaurantProfile = ({
   //   const [image, setImage] = useState<File | null>(null);
   const [isOpen, setIsOpen] = useState<boolean>(restaurant.isOpen);
   const [loading, setLoading] = useState<boolean>(false);
+  const { setIsAuth, setUser } = useAppData();
 
   const toggleOpenStatus = async () => {
     try {
@@ -71,6 +73,24 @@ const RestaurantProfile = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const logoutHandler = async () => {
+    await axios.put(
+      `${restaurantService}/api/restaurant/status`,
+      {
+        status: false,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+    localStorage.setItem("token", "");
+    setIsAuth(false);
+    setUser(null);
+    toast.success("Logged out successfully");
   };
 
   return (
@@ -144,6 +164,14 @@ const RestaurantProfile = ({
                 onClick={toggleOpenStatus}
               >
                 {isOpen ? "Close Restaurant" : "Open Restaurant"}
+              </button>
+            )}
+            {isSeller && (
+              <button
+                className={`rounded-lg px-4 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700"`}
+                onClick={logoutHandler}
+              >
+                Logout
               </button>
             )}
           </div>
