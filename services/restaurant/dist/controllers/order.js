@@ -10,6 +10,7 @@ const Address_1 = __importDefault(require("../models/Address"));
 const Cart_1 = __importDefault(require("../models/Cart"));
 const Order_1 = __importDefault(require("../models/Order"));
 const Restaurant_1 = __importDefault(require("../models/Restaurant"));
+const order_publisher_1 = require("../config/order.publisher");
 exports.createOrder = (0, trycatch_1.default)(async (req, res) => {
     const user = req.user;
     if (!user) {
@@ -205,6 +206,15 @@ exports.updateOrderStatus = (0, trycatch_1.default)(async (req, res) => {
         },
     });
     // now assign riders
+    if (status === "ready_for_rider") {
+        console.log("Publishing Order ready for rider event for rider", order._id);
+        await (0, order_publisher_1.publisheEvent)("ORDER_READY_FOR_RIDER", {
+            orderId: order._id.toString(),
+            restaurantId: restaurant._id.toString(),
+            location: restaurant.autoLocation,
+        });
+        console.log("Event published successfully");
+    }
     res.status(200).json({
         message: "Order status updated successfully",
         order,
