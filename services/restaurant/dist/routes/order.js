@@ -13,4 +13,7 @@ router.get("/:id", isAuth_1.isAuth, order_1.fetchSingleOrder);
 router.post("/new", isAuth_1.isAuth, order_1.createOrder);
 router.get("/payment/:id", order_1.fetchOrderForPayment);
 router.put("/:orderId", isAuth_1.isAuth, isAuth_1.isSeller, order_1.updateOrderStatus);
+router.put("/assign/rider", order_1.assignRiderToOrder);
+router.get("/current/rider", order_1.getCurrentOrderForRider);
+router.put("/update/status/rider", order_1.updateOrderStatusRider);
 exports.default = router;
