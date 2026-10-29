@@ -22,11 +22,14 @@ const Orders = () => {
 
   const fetchOrders = async () => {
     try {
-      const { data } = await axios.get(`${restaurantService}/api/order/myorder`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      const { data } = await axios.get(
+        `${restaurantService}/api/order/myorder`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         },
-      });
+      );
       setOrders(data.orders || []);
     } catch (error) {
       console.log(error);
@@ -47,9 +50,11 @@ const Orders = () => {
     };
 
     socket.on("order:update", onOrderUpdate);
+    socket.on("order:rider_assigned", onOrderUpdate);
 
     return () => {
       socket.off("order:update", onOrderUpdate);
+      socket.off("order:rider_assigned", onOrderUpdate);
     };
   }, [socket]);
 
@@ -122,14 +127,16 @@ const OrderRow = ({
     >
       <div className="flex justify-between items-center">
         <p className="text-sm font-medium">Order #{order._id.slice(-6)}</p>
-        <span className="text-xs capitalize text-gray-500">{order.status.replaceAll("_", " ")}</span>
+        <span className="text-xs capitalize text-gray-500">
+          {order.status.replaceAll("_", " ")}
+        </span>
       </div>
       <div className="mt-2 text-sm text-gray-600">
         {order.items.map((item, i) => (
-            <span key={i}>
-                {item.name} X {item.quantity}
-                {i < order.items.length - 1 && ", "}
-            </span>
+          <span key={i}>
+            {item.name} X {item.quantity}
+            {i < order.items.length - 1 && ", "}
+          </span>
         ))}
       </div>
       <div className="mt-2 flex justify-between text-sm font-medium">

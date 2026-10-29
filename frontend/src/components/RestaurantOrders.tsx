@@ -98,6 +98,19 @@ const RestaurantOrders = ({ restaurantId }: { restaurantId: string }) => {
     (o) => !ACTIVE_STATUSES.includes(o.status),
   );
 
+  useEffect(() => {
+    if (!socket) return;
+    
+    const onUpdateOrder = () => {
+      fetchOrders();
+    };
+    socket.on("order:rider_assigned", onUpdateOrder);
+
+    return () => {
+      socket.off("order:rider_assigned", onUpdateOrder);
+    };
+  }, [socket]);
+
   return (
     <div className="space-y-6 ">
       {!audioUnlocked && (
