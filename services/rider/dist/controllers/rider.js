@@ -164,7 +164,7 @@ export const fetchMyCurrentOrder = TryCatch(async (req, res) => {
     }
     const rider = await Rider.findOne({
         userId: riderUserId,
-        isAvailable: true,
+        isVerified: true,
     });
     if (!rider) {
         return res.status(404).json({
@@ -183,7 +183,7 @@ export const fetchMyCurrentOrder = TryCatch(async (req, res) => {
     }
     catch (error) {
         res.status(500).json({
-            message: "Internal server error",
+            message: error.response.data.message,
         });
     }
 });
@@ -212,8 +212,9 @@ export const updateOrderStatus = TryCatch(async (req, res) => {
         });
     }
     catch (error) {
+        console.log(error);
         res.status(500).json({
-            message: "Internal server error",
+            message: error.response.data.message,
         });
     }
 });

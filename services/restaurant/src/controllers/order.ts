@@ -339,6 +339,17 @@ export const assignRiderToOrder = TryCatch(async (req, res) => {
 
   const { orderId, riderId, riderName, riderPhone } = req.body;
 
+  const orderAvailable = await Order.findOne({
+    riderId,
+    status: { $ne: "delivered" },
+  });
+
+  if (orderAvailable) {
+    return res.status(400).json({
+      message: "You already have an order",
+    });
+  }
+
   const order = await Order.findById(orderId);
 
   if (order?.riderId !== null) {
@@ -400,7 +411,7 @@ export const getCurrentOrderForRider = TryCatch(async (req, res) => {
     });
   }
 
-  const riderId  = req.query;
+  const riderId = req.query;
 
   if (!riderId) {
     return res.status(400).json({
@@ -442,7 +453,7 @@ export const updateOrderStatusRider = TryCatch(async (req, res) => {
   if (order.status === "rider_assigned") {
     order.status = "picked_up";
 
-     await order.save();
+    await order.save();
 
     await axios.post(
       `${process.env.REALTIME_SERVICE}/api/v1/internal/emit`,
@@ -476,10 +487,10 @@ export const updateOrderStatusRider = TryCatch(async (req, res) => {
     });
   }
 
-  if(order.status === "picked_up") {
+  if (order.status === "picked_up") {
     order.status = "delivered";
-    
-     await order.save();
+
+    await order.save();
 
     await axios.post(
       `${process.env.REALTIME_SERVICE}/api/v1/internal/emit`,

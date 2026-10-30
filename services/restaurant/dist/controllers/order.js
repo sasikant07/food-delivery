@@ -252,6 +252,15 @@ exports.assignRiderToOrder = (0, trycatch_1.default)(async (req, res) => {
         });
     }
     const { orderId, riderId, riderName, riderPhone } = req.body;
+    const orderAvailable = await Order_1.default.findOne({
+        riderId,
+        status: { $ne: "delivered" },
+    });
+    if (orderAvailable) {
+        return res.status(400).json({
+            message: "You already have an order",
+        });
+    }
     const order = await Order_1.default.findById(orderId);
     if (order?.riderId !== null) {
         return res.status(400).json({
