@@ -4,10 +4,14 @@ import { useEffect, useState } from "react";
 import type { IOrder } from "../types";
 import axios from "axios";
 import { restaurantService } from "../main";
+import UserOrderMap from "../components/UserOrderMap";
 
 const OrderPage = () => {
   const [order, setOrder] = useState<IOrder | null>(null);
   const [loading, setLoading] = useState(true);
+  const [riderLocation, setRiderLocation] = useState<[number, number] | null>(
+    null,
+  );
 
   const { id } = useParams();
   const { socket } = useSocket();
@@ -48,6 +52,31 @@ const OrderPage = () => {
     };
   }, [socket]);
 
+  useEffect(() => {
+    if (!socket || !id) return;
+
+    socket.emit("join", `user:${id}`);
+
+    return () => {
+      socket.emit("leave", `user:${id}`);
+    };
+  }, [socket, id]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const onRiderLocation = ({ latitude, longitude }: any) => {
+      console.log("Rider Location: ", latitude, longitude);
+      setRiderLocation([latitude, longitude]);
+    };
+
+    socket.on("rider:location", onRiderLocation);
+
+    return () => {
+      socket.off("rider:location", onRiderLocation);
+    };
+  }, [socket]);
+
   if (loading) {
     return <p className="text-center text-gray-500">Loading Order...</p>;
   }
@@ -64,7 +93,8 @@ const OrderPage = () => {
     <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
       <h1 className="text-xl font-bold">Order #{order._id.slice(-6)}</h1>
       <div className="rounded-lg bg-blue-50 p-3 text-sm font-medium">
-        Status: <span className="capitalize">{order.status.replaceAll("_", " ")}</span>
+        Status:{" "}
+        <span className="capitalize">{order.status.replaceAll("_", " ")}</span>
       </div>
       <div className="rounded-xl bg-white p-4 shadow-sm space-y-2">
         <h2 className="font-semibold">Items</h2>
@@ -103,9 +133,25 @@ const OrderPage = () => {
           <span className="">Total</span>
           <span className="">₹{order.totalAmount}</span>
         </div>
-        <p className="text-xs text-gray-500">Payment Method: {order.paymentMethod}</p>
-        <p className="text-xs text-gray-500">Payment Status: {order.paymentStatus}</p>
+        <p className="text-xs text-gray-500">
+          Payment Method: {order.paymentMethod}
+        </p>
+        <p className="text-xs text-gray-500">
+          Payment Status: {order.paymentStatus}
+        </p>
       </div>
+      {(order.status === "rider_assigned" || order.status === "picked_up") &&
+        (riderLocation ? (
+          <UserOrderMap
+            riderLocation={riderLocation}
+            deliveryLocation={[
+              order.deliveryAddress.latitude!,
+              order.deliveryAddress.longitude!,
+            ]}
+          />
+        ) : (
+          <p>Waiting for rider location</p>
+        ))}
     </div>
   );
 };

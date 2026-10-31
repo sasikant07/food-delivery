@@ -89,18 +89,9 @@ const RestaurantOrders = ({ restaurantId }: { restaurantId: string }) => {
     };
   }, [socket, audioUnlocked]);
 
-  if (loading) {
-    return <p className="text-gray-500">Loading Orders</p>;
-  }
-
-  const activeOrders = orders.filter((o) => ACTIVE_STATUSES.includes(o.status));
-  const completedOrders = orders.filter(
-    (o) => !ACTIVE_STATUSES.includes(o.status),
-  );
-
   useEffect(() => {
     if (!socket) return;
-    
+
     const onUpdateOrder = () => {
       fetchOrders();
     };
@@ -110,6 +101,15 @@ const RestaurantOrders = ({ restaurantId }: { restaurantId: string }) => {
       socket.off("order:rider_assigned", onUpdateOrder);
     };
   }, [socket]);
+
+  if (loading) {
+    return <p className="text-gray-500">Loading Orders</p>;
+  }
+
+  const activeOrders = orders.filter((o) => ACTIVE_STATUSES.includes(o.status));
+  const completedOrders = orders.filter(
+    (o) => !ACTIVE_STATUSES.includes(o.status),
+  );
 
   return (
     <div className="space-y-6 ">
